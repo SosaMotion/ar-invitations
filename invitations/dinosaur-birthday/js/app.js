@@ -1,7 +1,8 @@
 /* Original application code. See LICENSE and NOTICE.md. */
 (() => {
   "use strict";
-  const config = window.CARD_CONFIG;
+  let config = { ...window.CARD_CONFIG };
+  let modelBlobUrl, motionTime = 0;
   const $ = id => document.getElementById(id);
   let state = "idle", scene, model, mixer, action, timer;
   const defaultHeadline = "Get your dino ready for Party time.";
@@ -45,26 +46,56 @@
     if (!bytes.length || (label === "The dinosaur" && String.fromCharCode(...bytes.slice(0, 4)) !== "glTF") || (label !== "The dinosaur" && /text\/html/.test(response.headers.get("content-type") || ""))) {
       throw new Error(`${label} is not a valid asset. Ask the card creator to replace ${url}.`);
     }
+    if (label === "The dinosaur") modelBlobUrl = URL.createObjectURL(new Blob([bytes], {type: "model/gltf-binary"}));
   }
   function registerAnimation() {
     AFRAME.registerComponent("birthday-animation", {
       init() {
         this.el.addEventListener("model-loaded", event => {
           const mesh = event.detail.model;
-          mixer = new AFRAME.THREE.AnimationMixer(mesh);
+          if (config.autoFit) {
+            mesh.updateMatrixWorld(true);
+            const box = new AFRAME.THREE.Box3().setFromObject(mesh);
+            const size = box.getSize(new AFRAME.THREE.Vector3());
+            const center = box.getCenter(new AFRAME.THREE.Vector3());
+            const factor = 1 / Math.max(size.x, size.y, size.z, 0.0001);
+            // Normalize arbitrary export units and place the model's base at the anchor.
+            const wrapper = new AFRAME.THREE.Group();
+            this.el.setObject3D('mesh', wrapper);
+            wrapper.add(mesh);
+            mesh.scale.multiplyScalar(factor);
+            mesh.position.multiplyScalar(factor);
+            mesh.position.x -= center.x * factor;
+            mesh.position.y -= box.min.y * factor;
+            mesh.position.z -= center.z * factor;
+          }
           const clips = mesh.animations || [];
           const clip = config.animationClip ? clips.find(item => item.name === config.animationClip) : clips[0];
           if (!clip) {
-            fail(config.animationClip ? "The selected dinosaur animation was not found. Ask the card creator to check the animation clip name." : "This dinosaur has no animation. Ask the card creator to export an animated GLB.");
+            if (config.animationClip) {
+              fail("The selected animation clip was not found. Check assets/ar/settings.json.");
+            }
+            // Static GLBs get a gentle whole-model bounce, not invented skeletal animation.
+            this.staticModel = !config.animationClip;
             return;
           }
+          mixer = new AFRAME.THREE.AnimationMixer(mesh);
           action = mixer.clipAction(clip);
           action.setLoop(AFRAME.THREE.LoopRepeat, Infinity);
           action.play();
           action.paused = true;
         });
       },
-      tick(_time, delta) { if (state === "found" && mixer) mixer.update(Math.min(delta / 1000, 0.1)); },
+      tick(_time, delta) {
+        if (state !== "found") return;
+        const seconds = Math.min(delta / 1000, 0.1);
+        if (mixer) mixer.update(seconds);
+        if (this.staticModel) {
+          motionTime += seconds;
+          const base = config.modelPosition.split(" ").map(Number);
+          this.el.object3D.position.z = base[2] + 0.025 * (1 - Math.cos(motionTime * 3));
+        }
+      },
       remove() { mixer?.stopAllAction(); }
     });
   }
@@ -93,7 +124,7 @@
       let rendered = false, loaded = false;
       const done = () => { if (rendered && loaded) resolve(); };
       model.addEventListener("model-loaded", () => { loaded = true; done(); }, {once: true});
-      model.setAttribute("gltf-model", `url(${config.modelUrl})`);
+      model.setAttribute("gltf-model", `url(${modelBlobUrl || config.modelUrl})`);
       anchor.appendChild(model);
       scene.appendChild(anchor);
       const light = document.createElement("a-entity");
@@ -103,7 +134,7 @@
         if (!["scanning", "found"].includes(state)) return;
         state = "found";
         model.setAttribute("visible", true);
-        if (config.restartOnFound) action?.reset();
+        if (config.restartOnFound) { action?.reset(); motionTime = 0; }
         if (action) { action.paused = false; action.play(); }
         $("scan-frame").hidden = true;
         $("replay").hidden = false;
@@ -148,6 +179,13 @@
     timer = setTimeout(() => fail("This is taking longer than expected. Check your connection and any camera permission prompt, then return and try again."), 120000);
     try {
       progress("Preparing the card and dinosaur…");
+      const settingsResponse = await fetch("./assets/ar/settings.json", {cache: "no-store", signal: AbortSignal.timeout(15000)});
+      if (!settingsResponse.ok) throw new Error("The invitation settings could not load. Please try again.");
+      config = {...config, ...await settingsResponse.json()};
+      // Fresh asset URLs each session prevent old models/targets persisting after a replacement.
+      const revision = Date.now();
+      config.modelUrl = `./assets/ar/dinosaur.glb?v=${revision}`;
+      config.targetUrl = `./assets/ar/card.mind?v=${revision}`;
       await Promise.all([checkAsset(config.targetUrl, "The card target"), checkAsset(config.modelUrl, "The dinosaur")]);
       if (state === "error") return;
       progress("Loading the AR experience…");
@@ -164,9 +202,9 @@
       fail(error.name === "TimeoutError" ? "The card assets took too long to download. Check your connection and try again." : error.message);
     }
   });
-  $("replay").addEventListener("click", () => { if (state === "found") { action?.reset().play(); if (action) action.paused = false; } });
+  $("replay").addEventListener("click", () => { if (state === "found") { motionTime = 0; action?.reset().play(); if (action) action.paused = false; } });
   ["stop", "cancel", "retry"].forEach(id => $(id).addEventListener("click", exit));
-  window.addEventListener("pagehide", releaseCamera);
+  window.addEventListener("pagehide", () => { releaseCamera(); if (modelBlobUrl) URL.revokeObjectURL(modelBlobUrl); });
   // MindAR starts tracking asynchronously after video metadata. Stop a late permission grant after a failure.
   document.addEventListener("loadedmetadata", () => { if (state === "error") releaseCamera(); }, true);
   window.addEventListener("unhandledrejection", () => {

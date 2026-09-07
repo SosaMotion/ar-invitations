@@ -12,14 +12,9 @@ Add future themes alongside `dinosaur-birthday` and link them from the root page
 
 ## Current status
 
-Prepared locally. No upload or deployment was performed by this task. GitHub Pages should remain disabled until publication is approved.
+Prepared locally. No upload or deployment was performed by this task. The user has published the earlier welcome screen. This update is prepared locally and has not been uploaded.
 
-The dinosaur welcome screen and AR application code are included. Camera tracking requires two actual files that have not yet been supplied:
-
-- `invitations/dinosaur-birthday/assets/models/dinosaur.glb`
-- `invitations/dinosaur-birthday/assets/targets/card.mind`
-
-PNG illustrations do not replace either file. See the theme README for export and compilation instructions. Supplied artwork is excluded from the application MIT license; see the theme NOTICE.md.
+The dinosaur theme now includes a compiled tracking target and an optimized static GLB with procedural whole-model motion. Replace assets under `invitations/dinosaur-birthday/assets/ar/`. The theme README explains the fixed URL, QR placement, and future replacements. Original artwork and model rights remain separate from the application MIT license.
 
 ## Transfer to the repository
 
@@ -31,7 +26,7 @@ From this folder run `python3 -m http.server 8000 --bind 127.0.0.1` and open `ht
 
 ## Publishing after approval
 
-In GitHub Settings → Pages, select Deploy from a branch, main, /(root). The theme URL will be `https://USERNAME.github.io/ar-invitations/invitations/dinosaur-birthday/`. Point the invitation QR code to that theme URL. Keep Pages disabled until approved; no automated deployment workflow is included.
+In GitHub Settings → Pages, select Deploy from a branch, main, /(root). The theme URL will be `https://USERNAME.github.io/ar-invitations/invitations/dinosaur-birthday/`. Point the invitation QR code to that theme URL. The user has already enabled Pages. Uploading updates to the publishing branch will deploy them; no custom deployment workflow is included.
 
 ## Checks
 

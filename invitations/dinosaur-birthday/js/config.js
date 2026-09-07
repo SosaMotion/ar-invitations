@@ -3,8 +3,8 @@ window.CARD_CONFIG = Object.freeze({
   headline: "Get your dino ready for Party time.",
   // Set headline to a different string to replace the styled default heading.
   intro: "Point your camera at your birthday card. Let’s get this dino party started!",
-  modelUrl: "./assets/models/dinosaur.glb",
-  targetUrl: "./assets/targets/card.mind",
+  modelUrl: "./assets/ar/dinosaur.glb",
+  targetUrl: "./assets/ar/card.mind",
   targetIndex: 0,
   modelPosition: "0 0 0",
   modelRotation: "90 0 0", // glTF +Y becomes the outward-facing target +Z.
