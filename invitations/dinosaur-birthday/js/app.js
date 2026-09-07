@@ -93,7 +93,7 @@
         if (state !== "found") return;
         const seconds = Math.min(delta / 1000, 0.1);
         if (mixer) mixer.update(seconds);
-        if (this.staticModel) {
+        if (this.staticModel && config.staticMotion !== false) {
           motionTime += seconds;
           const base = config.modelPosition.split(" ").map(Number);
           this.el.object3D.position.z = base[2] + 0.025 * (1 - Math.cos(motionTime * 3));
@@ -105,7 +105,7 @@
   function createScene() {
     return new Promise((resolve, reject) => {
       scene = document.createElement("a-scene");
-      scene.setAttribute("mindar-image", `imageTargetSrc: ${config.targetUrl}; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; maxTrack: 1`);
+      scene.setAttribute("mindar-image", `imageTargetSrc: ${config.targetUrl}; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; maxTrack: 1; filterMinCF: ${config.filterMinCF ?? 0.0005}; filterBeta: ${config.filterBeta ?? 100}; warmupTolerance: ${config.warmupTolerance ?? 5}; missTolerance: ${config.missTolerance ?? 10}`);
       scene.setAttribute("renderer", "colorManagement: true; alpha: true");
       scene.setAttribute("vr-mode-ui", "enabled: false");
       scene.setAttribute("device-orientation-permission-ui", "enabled: false");

@@ -3,6 +3,11 @@
   "modelPosition": "0 -0.15 0.02",
   "modelRotation": "90 0 0",
   "animationClip": "",
-  "restartOnFound": true,
-  "autoFit": true
+  "restartOnFound": false,
+  "autoFit": true,
+  "filterMinCF": 0.0005,
+  "filterBeta": 100,
+  "warmupTolerance": 5,
+  "missTolerance": 10,
+  "staticMotion": false
 }
