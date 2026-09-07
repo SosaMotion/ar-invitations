@@ -54,6 +54,9 @@
         this.el.addEventListener("model-loaded", event => {
           const mesh = event.detail.model;
           if (config.autoFit) {
+            // MindAR's untracked anchor has a zero matrix. Measure the export in
+            // isolation, before parenting it under that anchor or applying AR placement.
+            mesh.removeFromParent();
             mesh.updateMatrixWorld(true);
             const box = new AFRAME.THREE.Box3().setFromObject(mesh);
             const size = box.getSize(new AFRAME.THREE.Vector3());
