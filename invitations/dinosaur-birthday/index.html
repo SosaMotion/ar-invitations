@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f9ef">
+  <meta name="description" content="Bring your dinosaur birthday card to life in augmented reality.">
+  <title>Get your dino ready for Party time.</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <script defer src="./js/config.js"></script>
+  <script defer src="./js/app.js"></script>
+</head>
+<body>
+  <div id="ar-stage" aria-label="Augmented reality camera view"></div>
+  <main id="welcome" class="welcome">
+    <div class="edition">A DINOSAUR BIRTHDAY SURPRISE</div>
+    <h1 id="headline"><span>Get your dino ready for</span><em>Party time.</em></h1>
+    <div class="party-art" role="img" aria-label="A smiling blue brontosaurus, orange T-rex, and green stegosaurus ready to party among palms and rocks.">
+      <img class="art clouds" src="./assets/artwork/Clouds.png" alt="" width="3300" height="3300">
+      <img class="art tree" src="./assets/artwork/Tree.png" alt="" width="3300" height="3300">
+      <img class="art rock" src="./assets/artwork/Rock.png" alt="" width="3300" height="3300">
+      <img class="art bronto" src="./assets/artwork/Brontosaurus.png" alt="" width="3300" height="3300">
+      <img class="art trex" src="./assets/artwork/Trex.png" alt="" width="3300" height="3300">
+      <img class="art stego" src="./assets/artwork/Stego.png" alt="" width="3300" height="3300">
+    </div>
+    <p id="intro" class="intro">Point your camera at your birthday card.<br>Let’s get this dino party started!</p>
+    <ol class="steps"><li><span>01</span>Lay your birthday card flat.</li><li><span>02</span>Allow your camera, then point it at the card.</li><li><span>03</span>Watch your dinosaur come to life.</li></ol>
+    <button id="start" class="primary" type="button">Let’s party! <span aria-hidden="true">↗</span></button>
+    <p class="privacy">No app to install. Camera images stay on your device.</p>
+    <details><summary>Tips for a great discovery</summary><p>Use bright, even light. Keep the whole card in view and move slowly. Avoid glare and shadows. Open this page directly in Safari or Chrome if an in-app browser has trouble.</p></details>
+    <footer><a href="./NOTICE.md">Credits &amp; licenses</a><span>MADE FOR A ROARSOME DAY</span></footer>
+  </main>
+  <section id="loading" class="overlay" hidden aria-labelledby="loading-title">
+    <div class="panel"><div class="spinner" aria-hidden="true"></div><p class="eyebrow">A BIG SURPRISE IS ON ITS WAY</p><h2 id="loading-title">Getting party-ready…</h2><p id="loading-text" role="status" aria-live="polite">Preparing your birthday surprise.</p><button class="secondary" id="cancel" type="button">Back to the card</button></div>
+  </section>
+  <section id="error" class="overlay" hidden aria-labelledby="error-title">
+    <div class="panel"><p class="eyebrow">A LITTLE HELP NEEDED</p><h2 id="error-title" tabindex="-1">We couldn’t start the adventure.</h2><p id="error-text" role="alert"></p><button id="retry" class="primary" type="button">Return &amp; try again</button></div>
+  </section>
+  <div id="hud" hidden>
+    <div class="topbar"><span class="live-label">DINO PARTY TIME</span><button id="stop" class="secondary" type="button">End camera</button></div>
+    <div id="scan-frame" aria-hidden="true"></div>
+    <div class="tracking"><span id="dot" class="dot"></span><p id="tracking-text" role="status" aria-live="polite">Point your camera at the birthday card.</p><button id="replay" class="secondary" type="button" hidden>Replay animation</button></div>
+  </div>
+  <noscript><div class="overlay"><div class="panel">Enable JavaScript to bring your birthday card to life.</div></div></noscript>
+</body>
+</html>
